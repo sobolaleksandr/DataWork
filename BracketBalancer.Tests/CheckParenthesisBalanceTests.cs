@@ -1,40 +1,52 @@
-using System;
-using Xunit;
-
 namespace BracketBalancer.Tests
 {
+    using System;
+
+    using Xunit;
+
+    /// <summary>
+    /// Тесты для <see cref="Brackets"/>
+    /// </summary>
     public class CheckParenthesisBalanceTests
     {
-        [Fact]
-        public void CheckParenthesisBalance_WithNotEnoughBrackets()
-        {
-            string line1 = "((1+3)((((4+(3-5)))";
-
-            Assert.Equal("Не хватает закр. скобок: 3", Brackets.CheckParenthesisBalance(line1));
-        }
-
-        [Fact]
-        public void CheckParenthesisBalance_WithEnoughBrackets()
-        {
-            string line2 = "((1+3)()(4+(3-5)))";
-
-            Assert.Equal("OK", Brackets.CheckParenthesisBalance(line2));
-        }
-
-        [Fact]
-        public void CheckParenthesisBalance_WithTooMuchBrackets()
-        {
-            string line3 = "((1+3)())(4+(3-5)))";
-
-            Assert.Equal("Лишняя закрывающая скобка", Brackets.CheckParenthesisBalance(line3));
-        }
-
+        /// <summary>
+        /// Проверить пустую скобочную структуру.
+        /// </summary>
         [Fact]
         public void CheckParenthesisBalance_WithEmptyString()
         {
-            string line3 = "";
-
+            const string line3 = "";
             Assert.Throws<ArgumentException>(() => Brackets.CheckParenthesisBalance(line3));
+        }
+
+        /// <summary>
+        /// Проверить правильную последовательность.
+        /// </summary>
+        [Fact]
+        public void CheckParenthesisBalance_WithEnoughBrackets()
+        {
+            const string line2 = "((1+3)()(4+(3-5)))";
+            Assert.Equal("OK", Brackets.CheckParenthesisBalance(line2));
+        }
+
+        /// <summary>
+        /// Проверить последовательность с недостаточным количеством закрывающих скобок.
+        /// </summary>
+        [Fact]
+        public void CheckParenthesisBalance_WithNotEnoughBrackets()
+        {
+            const string line1 = "((1+3)((((4+(3-5)))";
+            Assert.Equal("Не хватает закр. скобок: 3", Brackets.CheckParenthesisBalance(line1));
+        }
+
+        /// <summary>
+        /// Проверить последовательность с слишком большим количеством закрывающих скобок.
+        /// </summary>
+        [Fact]
+        public void CheckParenthesisBalance_WithTooMuchBrackets()
+        {
+            const string line3 = "((1+3)())(4+(3-5)))";
+            Assert.Equal("Лишняя закрывающая скобка", Brackets.CheckParenthesisBalance(line3));
         }
     }
 }

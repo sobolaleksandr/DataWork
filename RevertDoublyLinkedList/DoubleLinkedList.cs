@@ -1,63 +1,147 @@
-﻿using System.Collections.Generic;
-using System.Collections;
-
-namespace RevertDoublyLinkedList
+﻿namespace RevertDoublyLinkedList
 {
-    public class DoubleLinkedList<T> : IEnumerable<T>  // двусвязный список
-    {
-        DoubleLinkedListNode<T> First; // головной/первый элемент
-        DoubleLinkedListNode<T> Last; // последний/хвостовой элемент
-        int count;  // количество элементов в списке
+    using System.Collections;
+    using System.Collections.Generic;
 
-        //insert new DoubleLinkedListNode with given value at the end of the list
-        public void AddLast(T value)
+    /// <summary>
+    /// Двусвязный список.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class DoubleLinkedList<T> : IEnumerable<T> // двусвязный список
+    {
+        /// <summary>
+        /// Головной/первый элемент.
+        /// </summary>
+        private DoubleLinkedListNode<T> _first;
+
+        /// <summary>
+        /// Последний/хвостовой элемент.
+        /// </summary>
+        private DoubleLinkedListNode<T> _last;
+
+        /// <summary>
+        /// Количество элементов в списке.
+        /// </summary>
+        public int Count { get; private set; }
+
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            DoubleLinkedListNode<T> node = new DoubleLinkedListNode<T>(value);
-
-            if (First == null)
-                First = node;
-            else
-            {
-                Last.Next = node;
-                node.Prev = Last;
-            }
-            Last = node;
-            count++;
+            return ((IEnumerable)this).GetEnumerator();
         }
 
-        //insert new DoubleLinkedListNode with give value at the start of the list
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            var current = _first;
+            while (current != null)
+            {
+                yield return current.Value;
+                current = current.Next;
+            }
+        }
+
+        /// <summary>
+        /// Вставка нового <see cref="DoubleLinkedListNode{T}"/> со значением в начале списка.
+        /// </summary>
+        /// <param name="value"> Значение. </param>
         public void AddFirst(T value)
         {
-            DoubleLinkedListNode<T> node = new DoubleLinkedListNode<T>(value);
-            DoubleLinkedListNode<T> temp = First;
+            var node = new DoubleLinkedListNode<T>(value);
+            var temp = _first;
             node.Next = temp;
-            First = node;
-            if (count == 0)
-                Last = First;
+            _first = node;
+
+            if (Count == 0)
+                _last = _first;
             else
                 temp.Prev = node;
-            count++;
+
+            Count++;
         }
 
-        public int Count { get { return count; } }
-        public bool IsEmpty { get { return count == 0; } }
+        /// <summary>
+        /// Вставка нового <see cref="DoubleLinkedListNode{T}"/> со значением в конце списка.
+        /// </summary>
+        /// <param name="value"> Значение. </param>
+        public void AddLast(T value)
+        {
+            var node = new DoubleLinkedListNode<T>(value);
 
+            if (_first == null)
+            {
+                _first = node;
+            }
+            else
+            {
+                _last.Next = node;
+                node.Prev = _last;
+            }
+
+            _last = node;
+            Count++;
+        }
+
+        /// <summary>
+        /// Провеить содержится ли значение в списке.
+        /// </summary>
+        /// <param name="value"> Значение. </param>
+        /// <returns> True, если содержится. </returns>
         public bool Contains(T value)
         {
-            DoubleLinkedListNode<T> current = First;
+            var current = _first;
             while (current != null)
             {
                 if (current.Value.Equals(value))
                     return true;
                 current = current.Next;
             }
+
             return false;
         }
 
+        /// <summary>
+        /// Удалить значение из списка.
+        /// </summary>
+        /// <param name="value"> Значение. </param>
+        /// <returns> True, если получилось удалить. </returns>
+        public bool Remove(T value)
+        {
+            var current = _first;
+
+            // поиск удаляемого узла
+            while (current != null)
+            {
+                if (current.Value.Equals(value))
+                    break;
+
+                current = current.Next;
+            }
+
+            if (current == null)
+                return false;
+
+            // если узел не последний
+            if (current.Next != null)
+                current.Next.Prev = current.Prev;
+            else
+                _last = current.Prev; // если последний, переустанавливаем tail
+
+            // если узел не первый
+            if (current.Prev != null)
+                current.Prev.Next = current.Next;
+            else
+                _first = current.Next; // если первый, переустанавливаем head
+
+            Count--;
+            return true;
+        }
+
+        /// <summary>
+        /// Перевернуть список.
+        /// </summary>
         public void Reverse()
         {
             DoubleLinkedListNode<T> temp = null;
-            DoubleLinkedListNode<T> current = First;
+            var current = _first;
 
             while (current != null)
             {
@@ -68,69 +152,7 @@ namespace RevertDoublyLinkedList
             }
 
             if (temp != null)
-            {
-                First = temp.Prev;
-            }
-
-        }
-
-
-        // удаление
-        public bool Remove(T value)
-        {
-            DoubleLinkedListNode<T> current = First;
-
-            // поиск удаляемого узла
-            while (current != null)
-            {
-                if (current.Value.Equals(value))
-                {
-                    break;
-                }
-                current = current.Next;
-            }
-            if (current != null)
-            {
-                // если узел не последний
-                if (current.Next != null)
-                {
-                    current.Next.Prev = current.Prev;
-                }
-                else
-                {
-                    // если последний, переустанавливаем tail
-                    Last = current.Prev;
-                }
-
-                // если узел не первый
-                if (current.Prev != null)
-                {
-                    current.Prev.Next = current.Next;
-                }
-                else
-                {
-                    // если первый, переустанавливаем head
-                    First = current.Next;
-                }
-                count--;
-                return true;
-            }
-            return false;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)this).GetEnumerator();
-        }
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            DoubleLinkedListNode<T> current = First;
-            while (current != null)
-            {
-                yield return current.Value;
-                current = current.Next;
-            }
+                _first = temp.Prev;
         }
     }
 }
